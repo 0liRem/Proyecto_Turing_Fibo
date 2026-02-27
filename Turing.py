@@ -45,10 +45,7 @@ class TuringMachine:
 
 
     def load_input(self, tapes_content=None, head_positions=None):
-        """
-        tapes_content: lista de strings, una por cinta
-        head_positions: lista de posiciones iniciales
-        """
+
         self.tapes = [['_'] * self.tape_size for _ in range(self.num_tapes)]
         self.heads = [self.tape_size // 2 for _ in range(self.num_tapes)]
         self.history = []
@@ -78,7 +75,7 @@ class TuringMachine:
     def step(self):
         current_syms = []
         for i in range(self.num_tapes):
-            sym = self.tapes[i][self.heads[i]]
+            sym = self.get_symbol(i)
             current_syms.append(sym)
         current_syms = tuple(current_syms)
 
@@ -108,6 +105,7 @@ class TuringMachine:
             moves = action['move']
             for i in range(self.num_tapes):
                 if writes[i] != '*':
+                    self.get_symbol(i)
                     self.tapes[i][self.heads[i]] = writes[i]
                 if moves[i] == 'R':
                     self.heads[i] += 1
@@ -139,10 +137,23 @@ class TuringMachine:
         print(f"Derivaciones guardadas en: {filename}")
 
 
+    def get_symbol(self, tape_index):
+        head = self.heads[tape_index]
+
+        # Expandir a la derecha
+        if head >= len(self.tapes[tape_index]):
+            self.tapes[tape_index].extend(['_'] * 100)
+
+        # Expandir a la izquierda
+        if head < 0:
+            self.tapes[tape_index] = ['_'] * 100 + self.tapes[tape_index]
+            self.heads[tape_index] += 100
+            head = self.heads[tape_index]
+
+        return self.tapes[tape_index][head]
+
 def main():
-    print("="*60)
     print("PROYECTO 1: MÁQUINA DE TURING - FIBONACCI")
-    print("="*60)
 
     #archivo de configuración
     config_file = input("\nIngrese el nombre del archivo JSON: ").strip()
@@ -157,8 +168,11 @@ def main():
     tm = TuringMachine(config_file, num_tapes=3)
 
     print(f"Ejecutando simulación con entrada: '{input_string}'")
-    tm.load_input([input_string])
-    tm.load_input(["#", "111", "11"])
+    ##
+    ### BORRAR AL TERMINAR TESTING
+    ##
+   #tm.load_input([input_string])
+    tm.load_input(["_", "111", "11"])
     result = tm.run()
 
 

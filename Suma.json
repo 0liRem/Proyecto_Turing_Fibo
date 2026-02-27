@@ -1,0 +1,93 @@
+{
+  "description": "Modulo Suma Unaria Correcto con Marcador",
+  "initial_state": "S_init",
+  "accepting_states": ["S_fin"],
+  "alphabet_tape": "1_X",
+  "transitions": {
+
+    "S_init|*,*,*": {
+      "next": "S_buscar",
+      "write": ["*","*","*"],
+      "move": ["S","S","S"]
+    },
+
+    "S_buscar|*,1,*": {
+      "next": "S_marcar",
+      "write": ["*","X","*"],
+      "move": ["S","S","S"]
+    },
+
+    "S_buscar|*,X,*": {
+      "next": "S_buscar",
+      "write": ["*","*","*"],
+      "move": ["S","R","S"]
+    },
+
+    "S_buscar|*,_,*": {
+      "next": "S_restaurar",
+      "write": ["*","*","*"],
+      "move": ["S","L","S"]
+    },
+
+    "S_marcar|*,X,*": {
+      "next": "S_ir_fin_t2",
+      "write": ["*","*","*"],
+      "move": ["S","S","S"]
+    },
+
+    "S_ir_fin_t2|*,*,1": {
+      "next": "S_ir_fin_t2",
+      "write": ["*","*","*"],
+      "move": ["S","S","R"]
+    },
+
+    "S_ir_fin_t2|*,*,_": {
+      "next": "S_escribir",
+      "write": ["*","*","1"],
+      "move": ["S","S","L"]
+    },
+
+    "S_escribir|*,*,1": {
+      "next": "S_volver_inicio",
+      "write": ["*","*","*"],
+      "move": ["S","L","S"]
+    },
+
+    "S_volver_inicio|*,X,*": {
+      "next": "S_volver_inicio",
+      "write": ["*","*","*"],
+      "move": ["S","L","S"]
+    },
+
+    "S_volver_inicio|*,1,*": {
+      "next": "S_volver_inicio",
+      "write": ["*","*","*"],
+      "move": ["S","L","S"]
+    },
+
+    "S_volver_inicio|*,_,*": {
+      "next": "S_buscar",
+      "write": ["*","*","*"],
+      "move": ["S","R","S"]
+    },
+
+    "S_restaurar|*,X,*": {
+      "next": "S_restaurar",
+      "write": ["*","1","*"],
+      "move": ["S","L","S"]
+    },
+
+    "S_restaurar|*,1,*": {
+      "next": "S_restaurar",
+      "write": ["*","*","*"],
+      "move": ["S","L","S"]
+    },
+
+    "S_restaurar|*,_,*": {
+      "next": "S_fin",
+      "write": ["*","*","*"],
+      "move": ["S","S","S"]
+    }
+
+  }
+}
