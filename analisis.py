@@ -3,6 +3,7 @@ import csv
 import os
 import time
 import statistics
+import numpy as np
 from dataclasses import dataclass
 from typing import List, Tuple, Dict
 
@@ -104,22 +105,56 @@ def save_csv(rows: List[ExperimentRow], out_csv: str) -> None:
             w.writerow([r.m, r.k, r.time_sec_median, r.time_sec_mean, r.time_sec_std, r.runs])
 
 
-def plot_scatter(rows: List[ExperimentRow], out_png: str) -> None:
-    by_k: Dict[int, List[ExperimentRow]] = {}
+
+
+def polynomial_regression(xs, ys, degree):
+    """
+    Ajuste polinomial usando mínimos cuadrados.
+    Retorna coeficientes y R^2.
+    """
+    coeffs = np.polyfit(xs, ys, degree)
+    poly = np.poly1d(coeffs)
+
+    yhat = poly(xs)
+    ybar = np.mean(ys)
+    ssreg = np.sum((yhat - ybar) ** 2)
+    sstot = np.sum((ys - ybar) ** 2)
+
+    r2 = ssreg / sstot
+    return coeffs, r2
+
+
+def plot_scatter(rows, out_png, degree=2):
+    by_k = {}
     for r in rows:
         by_k.setdefault(r.k, []).append(r)
 
     plt.figure(figsize=(10, 6))
-    for k, items in sorted(by_k.items()):
-        xs = [it.m for it in items]
-        ys = [it.time_sec_median * 1000.0 for it in items]  # ms
-        plt.scatter(xs, ys, label=f"k={k}")
 
-    plt.title("Dispersión: Tiempo de ejecución vs tamaño de entrada")
-    plt.xlabel("m = cantidad de '1' en la entrada")
-    plt.ylabel("Tiempo de ejecución en milisegundos")
-    plt.grid(True, alpha=0.3)
+    for k, items in sorted(by_k.items()):
+        xs = np.array([it.m for it in items])
+        ys = np.array([it.time_sec_median * 1000 for it in items])  # ms
+
+        plt.scatter(xs, ys, label=f"k={k} (datos)")
+
+        coeffs, r2 = polynomial_regression(xs, ys, degree)
+        poly = np.poly1d(coeffs)
+
+        x_smooth = np.linspace(min(xs), max(xs), 200)
+        y_smooth = poly(x_smooth)
+
+        plt.plot(x_smooth, y_smooth, linestyle="--",
+                 label=f"k={k} ajuste grado {degree} (R²={r2:.4f})")
+
+        print(f"\nPara k={k}")
+        print(f"Coeficientes polinomio grado {degree}: {coeffs}")
+        print(f"R^2 = {r2:.6f}")
+
+    plt.title("Tiempo de ejecución vs tamaño de entrada\ncon regresión polinomial")
+    plt.xlabel("m (tamaño de entrada)")
+    plt.ylabel("Tiempo (ms)")
     plt.legend()
+    plt.grid(True)
     plt.tight_layout()
     plt.savefig(out_png, dpi=200)
     plt.close()
@@ -151,7 +186,7 @@ def main():
     )
 
     save_csv(rows, args.out_csv)
-    plot_scatter(rows, args.out_png)
+    plot_scatter(rows, args.out_png, degree=2)
 
     print(f"- CSV: {args.out_csv}")
     print(f"- PNG: {args.out_png}")
