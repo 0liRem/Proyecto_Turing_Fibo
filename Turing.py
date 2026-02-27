@@ -19,12 +19,14 @@ import sys
 import os
 
 class TuringMachine:
-    def __init__(self, config_file=None):
+    def __init__(self, config_file=None, num_tapes=3, tape_size=300):
+        self.num_tapes = num_tapes
+        self.tape_size = tape_size
         self.transitions = {}
         self.state = 'q0'
         self.accepting = []
-        self.tapes = [['_'] * 200 for _ in range(3)]
-        self.heads = [100, 100, 100]  
+        self.tapes = [['_'] * tape_size for _ in range(num_tapes)]
+        self.heads = [tape_size // 2 for _ in range(num_tapes)]
         self.history = []
         if config_file:
             self.load_config(config_file)
@@ -41,18 +43,26 @@ class TuringMachine:
             self.state = data['initial_state']
             self.accepting = data['accepting_states']
 
-    def load_input_string(self, input_str):
 
-        self.tapes = [['_'] * 200 for _ in range(3)]
-        self.heads = [100, 100, 100]
+    def load_input(self, tapes_content=None, head_positions=None):
+        """
+        tapes_content: lista de strings, una por cinta
+        head_positions: lista de posiciones iniciales
+        """
+        self.tapes = [['_'] * self.tape_size for _ in range(self.num_tapes)]
+        self.heads = [self.tape_size // 2 for _ in range(self.num_tapes)]
         self.history = []
-        #cadena de entrada en la Cinta 0
-        for i, char in enumerate(input_str):
-            self.tapes[0][100 + i] = char
 
+        if tapes_content:
+            for t_index, content in enumerate(tapes_content):
+                for i, char in enumerate(content):
+                    self.tapes[t_index][self.heads[t_index] + i] = char
+
+        if head_positions:
+            self.heads = head_positions
     def log_step(self):
         step_info = f"Estado: {self.state}\n"
-        for i in range(3):
+        for i in range(self.num_tapes):
             idx = self.heads[i]
        
             start = max(0, idx-15)
@@ -67,7 +77,7 @@ class TuringMachine:
 
     def step(self):
         current_syms = []
-        for i in range(3):
+        for i in range(self.num_tapes):
             sym = self.tapes[i][self.heads[i]]
             current_syms.append(sym)
         current_syms = tuple(current_syms)
@@ -83,7 +93,7 @@ class TuringMachine:
             for k in candidates:
                 match = True
                 target_syms = k[1]
-                for i in range(3):
+                for i in range(self.num_tapes):
                     # * coincide con cualquier símbolo
                     if target_syms[i] != '*' and target_syms[i] != current_syms[i]:
                         match = False
@@ -96,7 +106,7 @@ class TuringMachine:
             self.state = action['next']
             writes = action['write']
             moves = action['move']
-            for i in range(3):
+            for i in range(self.num_tapes):
                 if writes[i] != '*':
                     self.tapes[i][self.heads[i]] = writes[i]
                 if moves[i] == 'R':
@@ -110,7 +120,7 @@ class TuringMachine:
         steps = 0
         while self.state not in self.accepting and steps < max_steps:
             if not self.step():
-                print(f"\nNo hay transición definida para estado '{self.state}' con símbolos: {tuple(self.tapes[i][self.heads[i]] for i in range(3))}")
+                print(f"\nNo hay transición definida para estado '{self.state}' con símbolos: {tuple(self.tapes[i][self.heads[i]] for i in range(self.num_tapes))}")
                 break
             steps += 1
         
@@ -144,10 +154,11 @@ def main():
     input_string = input("Ingrese la cadena de entrada (ej: '111#' para F(3)): ").strip()
 
     print(f"\n Cargando configuración desde '{config_file}'...")
-    tm = TuringMachine(config_file)
+    tm = TuringMachine(config_file, num_tapes=3)
 
     print(f"Ejecutando simulación con entrada: '{input_string}'")
-    tm.load_input_string(input_string)
+    tm.load_input([input_string])
+    tm.load_input(["#", "111", "11"])
     result = tm.run()
 
 
