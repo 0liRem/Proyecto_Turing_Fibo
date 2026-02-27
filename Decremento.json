@@ -1,0 +1,44 @@
+{
+  "description": "Modulo Decremento Unario",
+  "initial_state": "D_init",
+  "accepting_states": ["D_fin", "D_cero"],
+  "alphabet_tape": "1#_",
+  "transitions": {
+
+    "D_init|1,*,*": {
+      "next": "D_ir_fin",
+      "write": ["*","*","*"],
+      "move": ["R","S","S"]
+    },
+
+    "D_ir_fin|1,*,*": {
+      "next": "D_ir_fin",
+      "write": ["*","*","*"],
+      "move": ["R","S","S"]
+    },
+
+    "D_ir_fin|#,*,*": {
+      "next": "D_borrar",
+      "write": ["*","*","*"],
+      "move": ["L","S","S"]
+    },
+
+    "D_borrar|1,*,*": {
+      "next": "D_fin",
+      "write": ["_","*","*"],
+      "move": ["S","S","S"]
+    },
+
+    "D_borrar|_,*,*": {
+      "next": "D_cero",
+      "write": ["*","*","*"],
+      "move": ["S","S","S"]
+    },
+    "D_init|#,*,*": {
+        "next": "D_cero",
+        "write": ["*","*","*"],
+        "move": ["S","S","S"]
+        }
+
+  }
+}

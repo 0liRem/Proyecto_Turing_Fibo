@@ -1,0 +1,52 @@
+{
+  "description": "Modulo Copia T2 a T1",
+  "initial_state": "C_init",
+  "accepting_states": ["C_fin"],
+  "alphabet_tape": "1_",
+  "transitions": {
+
+        "C21_init|*,*,*,*": {
+    "next": "C21_limpiar",
+    "write": ["*","*","*","*"],
+    "move": ["S","S","S","S"]
+    },
+
+    "C21_limpiar|*,1,*,*": {
+    "next": "C21_limpiar",
+    "write": ["*","_","*","*"],
+    "move": ["S","R","S","S"]
+    },
+
+    "C21_limpiar|*,_,*,*": {
+    "next": "C21_ir_inicio",
+    "write": ["*","*","*","*"],
+    "move": ["S","S","L","S"]
+    },
+
+    "C21_ir_inicio|*,*,1,*": {
+    "next": "C21_ir_inicio",
+    "write": ["*","*","*","*"],
+    "move": ["S","S","L","S"]
+    },
+
+    "C21_ir_inicio|*,*,_,*": {
+    "next": "C21_copiar",
+    "write": ["*","*","*","*"],
+    "move": ["S","S","R","S"]
+    },
+
+
+    "C21_copiar|*,_,1,*": {
+    "next": "C21_copiar",
+    "write": ["*","1","1","*"],
+    "move": ["S","R","R","S"]
+    },
+
+    "C21_copiar|*,_,_,*": {
+    "next": "F_after_copy",
+    "write": ["*","*","*","*"],
+    "move": ["S","S","S","S"]
+    }
+
+  }
+}

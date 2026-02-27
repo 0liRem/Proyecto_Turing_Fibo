@@ -1,0 +1,76 @@
+{
+  "description": "Suma T1 + T2 hacia T3 (4 cintas)",
+  "initial_state": "S4_init",
+  "accepting_states": ["S4_fin"],
+  "alphabet_tape": "1_#",
+  "transitions": {
+
+    "S4_init|*,*,*,_": {
+      "next": "S4_ir_inicio_t1",
+      "write": ["*","*","*","*"],
+      "move": ["S","L","S","S"]
+    },
+
+
+
+    "S4_ir_inicio_t1|*,1,*,*": {
+      "next": "S4_ir_inicio_t1",
+      "write": ["*","*","*","*"],
+      "move": ["S","L","S","S"]
+    },
+
+    "S4_ir_inicio_t1|*,_,*,*": {
+      "next": "S4_copiar_t1",
+      "write": ["*","*","*","*"],
+      "move": ["S","R","S","S"]
+    },
+
+
+
+    "S4_copiar_t1|*,1,*,_": {
+      "next": "S4_copiar_t1",
+      "write": ["*","*","*","1"],
+      "move": ["S","R","S","R"]
+    },
+
+    "S4_copiar_t1|*,_,*,*": {
+      "next": "S4_ir_inicio_t2",
+      "write": ["*","*","*","*"],
+      "move": ["S","S","L","S"]
+    },
+
+
+
+    "S4_ir_inicio_t2|*,*,1,*": {
+    "next": "S4_ir_inicio_t2",
+    "write": ["*","*","*","*"],
+    "move": ["S","S","L","S"]
+    },
+
+    "S4_ir_inicio_t2|*,*,_,*": {
+    "next": "S4_copiar_t2",
+    "write": ["*","*","*","*"],
+    "move": ["S","S","R","S"]
+    },
+
+
+
+    "S4_copiar_t2|*,*,1,_": {
+      "next": "S4_copiar_t2",
+      "write": ["*","*","*","1"],
+      "move": ["S","S","R","R"]
+    },
+
+    "S4_copiar_t2|*,*,_,*": {
+      "next": "S4_fin",
+      "write": ["*","*","*","*"],
+      "move": ["S","S","S","S"]
+    },
+    "F_after_sum|*,*,*,*": {
+  "next": "F_fin",
+  "write": ["*","*","*","*"],
+  "move": ["S","S","S","S"]
+}
+
+  }
+}
